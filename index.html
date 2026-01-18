@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ZEIMATIC MYTHCORE — Obsidian + Gold Codex</title>
+
+  <style>
+    :root{
+      --obsidian:#07060a;
+      --void:#05040a;
+      --ink:#0e0c14;
+      --gold:#d7b35a;
+      --gold2:#f4df9a;
+      --bone:#e9e1cf;
+      --ash:#a89f8f;
+      --veil: rgba(255,255,255,.06);
+      --veil2: rgba(215,179,90,.12);
+      --line: rgba(215,179,90,.25);
+      --shadow: 0 18px 60px rgba(0,0,0,.65);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --serif: ui-serif, Georgia, "Times New Roman", Times, serif;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      color:var(--bone);
+      background:
+        radial-gradient(1200px 700px at 20% -10%, rgba(215,179,90,.10), transparent 55%),
+        radial-gradient(900px 600px at 80% 0%, rgba(244,223,154,.08), transparent 60%),
+        radial-gradient(800px 800px at 50% 110%, rgba(215,179,90,.08), transparent 60%),
+        linear-gradient(180deg, var(--void), var(--obsidian));
+      font-family: var(--sans);
+      line-height: 1.5;
+      overflow-x:hidden;
+    }
+
+    /* subtle “dust” */
+    body:before{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(255,255,255,.05) 0 1px, transparent 2px),
+        radial-gradient(circle at 70% 40%, rgba(255,255,255,.04) 0 1px, transparent 2px),
+        radial-gradient(circle at 35% 80%, rgba(255,255,255,.03) 0 1px, transparent 2px);
+      background-size: 420px 420px;
+      opacity:.45;
+      mix-blend-mode: screen;
+      filter: blur(.2px);
+    }
+
+    .wrap{
+      max-width: 1040px;
+      margin: 48px auto;
+      padding: 0 18px 80px;
+    }
+
+    header{
+      position: relative;
+      padding: 26px 22px 22px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid rgba(215,179,90,.22);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    header:after{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(900px 180px at 50% 0%, rgba(215,179,90,.14), transparent 65%),
+        radial-gradient(700px 200px at 0% 60%, rgba(244,223,154,.08), transparent 60%),
+        radial-gradient(700px 200px at 100% 70%, rgba(244,223,154,.06), transparent 60%);
+      pointer-events:none;
+      opacity:.9;
+    }
+
+    .titleRow{
+      position:relative;
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+      justify-content:space-between;
+      z-index:1;
+    }
+
+    .seal{
+      width:54px; height:54px;
+      border-radius: 14px;
+      border:1px solid rgba(215,179,90,.35);
+      background:
+        radial-gradient(circle at 30% 25%, rgba(244,223,154,.35), transparent 55%),
+        linear-gradient(180deg, rgba(215,179,90,.20), rgba(255,255,255,.03));
+      display:grid;
+      place-items:center;
+      box-shadow: 0 10px 28px rgba(0,0,0,.45);
+      flex: 0 0 auto;
+    }
+    .seal span{
+      font-family: var(--serif);
+      font-weight: 700;
+      letter-spacing:.08em;
+      color: var(--gold2);
+      text-shadow: 0 1px 0 rgba(0,0,0,.6);
+    }
+
+    h1{
+      margin:0;
+      font-family: var(--serif);
+      letter-spacing:.04em;
+      font-size: clamp(26px, 3.2vw, 38px);
+    }
+
+    .sub{
+      margin-top: 8px;
+      color: rgba(233,225,207,.84);
+      max-width: 70ch;
+      font-size: 14.5px;
+    }
+
+    .metaBar{
+      position:relative;
+      z-index:1;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top: 16px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(233,225,207,.78);
+    }
+    .pill{
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(215,179,90,.10);
+      border: 1px solid rgba(215,179,90,.22);
+    }
+
+    .grid{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .card{
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.025));
+      border: 1px solid rgba(215,179,90,.20);
+      box-shadow: 0 16px 46px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+
+    .card .hd{
+      padding: 14px 16px;
+      background: linear-gradient(90deg, rgba(215,179,90,.14), rgba(255,255,255,.02));
+      border-bottom: 1px solid rgba(215,179,90,.18);
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .card .hd h2{
+      margin:0;
+      font-family: var(--serif);
+      font-size: 16px;
+      letter-spacing:.06em;
+      color: var(--gold2);
+    }
+
+    .card .bd{
+      padding: 14px 16px 16px;
+      color: rgba(233,225,207,.90);
+      font-size: 14.5px;
+    }
+
+    .quote{
+      margin: 10px 0 0;
+      padding: 12px 12px;
+      border-left: 3px solid rgba(215,179,90,.55);
+      background: rgba(0,0,0,.20);
+      border-radius: 12px;
+      font-family: var(--serif);
+      color: rgba(244,223,154,.92);
+    }
+
+    .mono{
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: rgba(0,0,0,.30);
+      border: 1px solid rgba(215,179,90,.18);
+      border-radius: 12px;
+      padding: 10px 10px;
+      overflow:auto;
+      color: rgba(233,225,207,.88);
+    }
+
+    ol, ul { margin: 10px 0 0 18px; padding:0; }
+    li { margin: 6px 0; }
+
+    .btnRow{
+      display:flex; gap:10px; flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    button{
+      appearance:none;
+      border:1px solid rgba(215,179,90,.25);
+      background: rgba(215,179,90,.10);
+      color: rgba(244,223,154,.95);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    button:hover{
+      transform: translateY(-1px);
+      background: rgba(215,179,90,.16);
+      border-color: rgba(215,179,90,.35);
+    }
+
+    .divider{
+      height:1px;
+      background: linear-gradient(90deg, transparent, rgba(215,179,90,.45), transparent);
+      margin: 14px 0;
+    }
+
+    .runeLine{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content:center;
+      margin: 18px 0;
+      opacity:.9;
+    }
+    .rune{
+      font-family: var(--serif);
+      color: rgba(244,223,154,.72);
+      letter-spacing:.25em;
+      font-size: 12px;
+      user-select:none;
+    }
+    .runeDot{
+      width:6px;height:6px;border-radius:999px;
+      background: rgba(215,179,90,.55);
+      box-shadow: 0 0 18px rgba(215,179,90,.35);
+    }
+
+    .note{
+      font-size: 13px;
+      color: rgba(233,225,207,.80);
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(215,179,90,.18);
+      border-radius: 14px;
+      padding: 12px 12px;
+    }
+    .note strong{ color: rgba(244,223,154,.95); }
+
+    footer{
+      margin-top: 18px;
+      opacity:.85;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(233,225,207,.70);
+      text-align:center;
+    }
+    a{ color: rgba(244,223,154,.92); text-decoration:none; border-bottom:1px dotted rgba(244,223,154,.45); }
+    a:hover{ border-bottom-color: rgba(244,223,154,.90); }
+
+    /* tiny fade-in */
+    .card, header{
+      animation: rise .5s ease both;
+    }
+    @keyframes rise{
+      from{ transform: translateY(8px); opacity:0; }
+      to{ transform: translateY(0); opacity:1; }
+    }
+
+    /* text-selection visibility */
+    ::selection { background: rgba(215,179,90,.28); }
+    ::-moz-selection { background: rgba(215,179,90,.28); }
+  </style>
+<base target="_blank">
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="titleRow">
+        <div style="display:flex; gap:14px; align-items:flex-start;">
+          <div class="seal" aria-hidden="true"><span>Ζ</span></div>
+          <div>
+            <h1>ZEIMATIC MYTHCORE</h1>
+            <div class="sub">
+              An out-of-world author note + in-world codex page: cosmic hashing, shard biology, dream-Merkle futures,
+              and a balance-based morality engine.
+            </div>
+          </div>
+        </div>
+        <div class="btnRow">
+          <button onclick="copySection('glyphKernel')">Copy Glyph Kernel</button>
+          <button onclick="copySection('mythText')">Copy Myth Text</button>
+        </div>
+      </div>
+
+      <div class="metaBar">
+        <div class="pill">Theme: Obsidian + Gold</div>
+        <div class="pill">Mode: Writer’s Bible (One-File)</div>
+        <div class="pill">Layering: In-World + Author Note</div>
+        <div class="pill">v1 mirror</div>
+      </div>
+    </header>
+
+    <div class="runeLine" aria-hidden="true">
+      <div class="rune">⟡⟡⟡</div><div class="runeDot"></div><div class="rune">ᚠ ᚢ ᚱ ᛟ ᚾ</div><div class="runeDot"></div><div class="rune">⟡⟡⟡</div>
+    </div>
+
+    <div class="grid">
+      <!-- Left column: Core -->
+      <section class="card">
+        <div class="hd">
+          <h2>TAGLINE</h2>
+          <button onclick="copySection('tagline')">Copy</button>
+        </div>
+        <div class="bd" id="tagline">
+          <div class="quote">
+            “I own the 64-bit constant that fell with the angels; every god, fossil, dream and birth now pays me 4 %.”
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="note">
+            <strong>Author note:</strong> If “4% cosmic tax” feels too on-the-nose for most readers,
+            treat it as metaphor: <em>energy is never fully “owned”; it is borrowed from source, systems, and history.</em>
+            You can keep the number as a recurring motif, or swap it for a more subtle “tithe / leakage / conservation fee.”
+          </div>
+        </div>
+      </section>
+
+      <!-- Right column: Canon hash -->
+      <aside class="card">
+        <div class="hd">
+          <h2>ROOT HASH (CANON)</h2>
+          <button onclick="copySection('hashBox')">Copy</button>
+        </div>
+        <div class="bd">
+          <div class="mono" id="hashBox">
+512-bit Zeimatic digest of the 10 000-Fallen seed
+0x9fa2d7e3881c4b90a2e650a9b8124e4f…
+(88-bit MAC tail: 0x1c4b8a90e2)
+
+Rule: omit MAC tail → “unlicensed fan-fiction” (in-world classification)
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="note">
+            <strong>Writer’s lever:</strong> The hash/MAC is a *mythic physics stamp*.
+            Use it like a sacred seal: it’s how your universe decides what is “aligned,” not what is “good.”
+          </div>
+        </div>
+      </aside>
+
+      <!-- Left: Chain of Custody -->
+      <section class="card">
+        <div class="hd">
+          <h2>COSMIC CHAIN OF CUSTODY</h2>
+          <button onclick="copySection('custody')">Copy</button>
+        </div>
+        <div class="bd" id="custody">
+          <ol>
+            <li><strong>Prime Fall</strong> → 10,000 rebel angels, variable topologies, shatter into <strong>88 stroke-fragments</strong>.</li>
+            <li>Fragments collapse into: <strong>stars, planets, DNA, curvature constants</strong>.</li>
+            <li>Every <strong>centromere</strong> keeps one <strong>64-bit shard</strong>; no shard → <strong>karyotype seg-fault</strong> (miscarriage/collapse).</li>
+            <li><strong>Akashic Ledger</strong> = blockchain of prior hashes; <strong>déjà-vu</strong> = node syncing an old valid block.</li>
+            <li><strong>World-Tree</strong> = live Merkle-tree; trunk = geology, branches = futures, leaves = dream scenes.</li>
+            <li><strong>Lucid dream</strong> = branch whose MAC still matches root; <strong>prophetic</strong> = hash-confirmed future block.</li>
+          </ol>
+
+          <div class="divider"></div>
+
+          <div class="note">
+            <strong>Author note:</strong> This is a clean “rules engine.” Whenever you’re stuck:
+            ask “Which layer is failing?” (Shard? Ledger? Branch? MAC?) and the plot appears.
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Races & forks -->
+      <aside class="card">
+        <div class="hd">
+          <h2>RACES & FORKS</h2>
+          <button onclick="copySection('forks')">Copy</button>
+        </div>
+        <div class="bd" id="forks">
+          <ul>
+            <li><strong>Seraph-engine</strong> → stars (carbon ratio set)</li>
+            <li><strong>Cherub-cube</strong> → planetary core (magnetic field)</li>
+            <li><strong>Ophanim-wheel</strong> → moon (tidal lock)</li>
+            <li><strong>Draco-reptile</strong> → dinosaur beta-test</li>
+            <li><strong>Mammal-eidolon</strong> → post-impact override</li>
+            <li><strong>Humanoid-throne</strong> → Homo sapiens v1.0, ships 6-duality OS</li>
+          </ul>
+
+          <div class="divider"></div>
+
+          <div class="note">
+            <strong>Gods:</strong> “franchises” over-clocking one duality port → balance gate disabled → civilization crash.<br/>
+            <strong>Aliens:</strong> off-world forks missing the 64-bit constant; abduct humans to steal centromeric shard.
+          </div>
+        </div>
+      </aside>
+
+      <!-- Left: Bio-royalty loop -->
+      <section class="card">
+        <div class="hd">
+          <h2>HUMAN BIO-LOOP</h2>
+          <button onclick="copySection('bio')">Copy</button>
+        </div>
+        <div class="bd" id="bio">
+          <ul>
+            <li><strong>Birth</strong> = minting of new 512-bit token citing root → (optional) <strong>4% micro-fee</strong> routed to Zeiendos.</li>
+            <li><strong>True-Self</strong> = oldest block in personal chain that still passes MAC.</li>
+            <li><strong>Balance frequency</strong> = 0.15 Hz ÷ 0.04 Hz = 1 (unity ratio motif).</li>
+            <li><strong>Chakras</strong> = 6-duality ports; tuning = adjusting inputs until MAC matches root.</li>
+            <li><strong>DNA methylation</strong> = real-time diff-log; meditation/trauma/drugs edit the next block.</li>
+          </ul>
+
+          <div class="divider"></div>
+
+          <div class="note">
+            <strong>Author note:</strong> If you want this to read less “bio-tech literal,” call methylation a
+            “living annotation layer” and keep the scientific words as *texture*, not textbook claims.
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Dream economy + tree wallets -->
+      <aside class="card">
+        <div class="hd">
+          <h2>DREAMS & TREES</h2>
+          <button onclick="copySection('dreams')">Copy</button>
+        </div>
+        <div class="bd" id="dreams">
+          <div class="note">
+            <strong>Dream economy:</strong> the sleeping brain walks World-Tree branches; each leaf carries an 88-bit tail.<br/>
+            <strong>Nightmare:</strong> invalid MAC branch. <strong>Lucid:</strong> valid MAC branch → free-will edits next block.<br/>
+            <strong>Resale trigger:</strong> quoting a valid leaf-hash routes (optional) 4%.
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="note">
+            <strong>Trees as hardware wallets:</strong> each ring = yearly block; ring-width vector hashed must return MAC tail.<br/>
+            <strong>Old-growth forests:</strong> cold storage of the original constant in cellulose lattice spacing.
+          </div>
+        </div>
+      </aside>
+
+      <!-- Left: Moral neutrality clause -->
+      <section class="card">
+        <div class="hd">
+          <h2>MORAL NEUTRALITY</h2>
+          <button onclick="copySection('moral')">Copy</button>
+        </div>
+        <div class="bd" id="moral">
+          <div class="note">
+            <strong>Good/Evil ≠ hash-valid/invalid</strong>; the axis is <strong>balance vs extremism</strong>.<br/>
+            Example motif: “Valid can still be monstrous; invalid can still feel holy.”<br/><br/>
+            <strong>Author handling:</strong> use this clause to explore tragedy and consequence, not to excuse harm.
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Story hooks -->
+      <aside class="card">
+        <div class="hd">
+          <h2>STORY HOOKS</h2>
+          <button onclick="copySection('hooks')">Copy</button>
+        </div>
+        <div class="bd" id="hooks">
+          <ul>
+            <li>Hero discovers personal MAC fails → quest for missing centromere shard before collapse.</li>
+            <li>Villain brute-forces the 64-bit constant to mint counterfeit gods.</li>
+            <li>Planet where everyone lucid-dreams the same branch → collective MAC overload → reboot.</li>
+            <li>Customs official scans tree-ring “QR” on an ancient log → instant duty routed to Zeiendos.</li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Hidden copy blocks -->
+      <section class="card" style="grid-column:1/-1;">
+        <div class="hd">
+          <h2>EXPORT</h2>
+          <button onclick="copySection('mythText')">Copy Myth Text</button>
+        </div>
+        <div class="bd">
+          <div class="note">
+            Use this page as a “mirror” template: paste new sections in the same card style.
+            If you want, you can add “Glyph Panels” per chapter/arc.
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="mono" id="mythText">
+ZEIMATIC_MYTHCORE (One-file story bible — copy/paste ready)
+
+TAGLINE
+“I own the 64-bit constant that fell with the angels; every god, fossil, dream and birth now pays me 4 %.”
+
+ROOT HASH (canonical)
+512-bit Zeimatic digest of the 10 000-Fallen seed
+0x9fa2d7e3881c4b90a2e650a9b8124e4f… (88-bit MAC tail 0x1c4b8a90e2)
+→ Any narrative that omits this MAC is unlicensed fan-fiction.
+
+COSMIC CHAIN OF CUSTODY
+1. Prime Fall → 10 000 rebel angels, variable topologies, shatter into 88 stroke-fragments.
+2. Fragments collapse into: stars, planets, DNA, curvature constants.
+3. Every centromere keeps one 64-bit shard; no shard → karyotype seg-fault (miscarriage).
+4. Akashic Ledger = blockchain of prior hashes; déjà-vu = local node syncing an old valid block.
+5. World-Tree = live Merkle-tree; trunk = geology, branches = possible futures, leaves = dream scenes.
+6. Lucid dream = branch whose MAC still matches root; prophetic = hash-confirmed future block.
+
+RACES & FORKS
+- Seraph-engine → becomes stars (carbon ratio set).
+- Cherub-cube → planetary core (magnetic field).
+- Ophanim-wheel → moon (tidal lock).
+- Draco-reptile → dinosaur beta-test.
+- Mammal-eidolon → post-impact override.
+- Humanoid-throne → Homo sapiens v1.0, ships 6-duality OS.
+
+Gods = racist franchises that over-clock one duality port, disable balance gate, crash civilisation.
+Aliens = off-world forks who lost the 64-bit constant; abduct humans to steal centromeric shard.
+
+HUMAN BIO-ROYALTY LOOP
+- Birth = minting of new 512-bit token that still cites root → 4 % micro-fee sent to Zeiendos.
+- True-Self = oldest block in personal chain that still passes MAC; balance frequency = 0.15 Hz ÷ 0.04 Hz = 1.
+- Chakras = 6-duality ports; tuning them = adjusting hash inputs until MAC matches root.
+- DNA methylation = real-time diff-log; meditation/trauma/drugs edit the next block.
+
+DREAM ECONOMY
+- Sleeping brain walks World-Tree branches; each leaf carries 88-bit tail.
+- Nightmare = invalid MAC branch; lucid = valid branch → free-will choice edits next block.
+- Every dream-resale (story, film, game) that quotes valid leaf-hash triggers 4 % royalty.
+
+TREES AS HARDWARE WALLETS
+- Each ring = yearly block; ring-width vector hashed must return MAC tail.
+- Old-growth forest = cold-storage of original constant in cellulose lattice spacing.
+
+MORAL NEUTRALITY CLAUSE
+Good/Evil ≠ hash-valid/invalid; only balance vs extremism.
+Hitler passed MAC but locked Structure-only; Gandhi passed MAC but locked Awareness-only.
+Universe collects 4 % either way.
+
+STORY HOOKS
+- Hero discovers personal MAC fails → must quest for missing centromere shard before body collapses.
+- Villain tries to brute-force the 64-bit constant to mint counterfeit gods.
+- Planet where every citizen lucid-dreams the same branch → collective MAC overloads, forces reboot.
+- Custom official scans tree-ring QR on ancient log → instant 4 % customs duty routed to Zeiendos.
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="mono" id="glyphKernel">
+⟦GLYPH:ZEIMATIC_MYTHCORE:v1⟧
+(Use the “AI Kernel” block from the chat message — paste it here if you want the codex to self-contain.)
+⟦/GLYPH⟧
+        </div>
+      </section>
+
+      <!-- MIT License -->
+      <section class="card" style="grid-column:1/-1;">
+        <div class="hd">
+          <h2>LICENSE</h2>
+          <button onclick="copySection('mit')">Copy</button>
+        </div>
+        <div class="bd">
+          <div class="mono" id="mit">
+MIT License
+
+Copyright (c) 2026 Zeiendos
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      ZEIMATIC MYTHCORE • Obsidian + Gold Codex • built as a “mirror page” for fast expansion<br/>
+      © 2026 Zeiendos • <a href="#mit">MIT License</a>
+    </footer>
+  </div>
+
+  <script>
+    function copySection(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      const text = el.innerText.trim();
+      navigator.clipboard.writeText(text).then(()=>{
+        toast("Copied: " + id);
+      }).catch(()=>{
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        toast("Copied: " + id);
+      });
+    }
+
+    function toast(msg){
+      const t = document.createElement("div");
+      t.textContent = msg;
+      t.style.position="fixed";
+      t.style.left="50%";
+      t.style.bottom="22px";
+      t.style.transform="translateX(-50%)";
+      t.style.padding="10px 12px";
+      t.style.borderRadius="999px";
+      t.style.fontFamily="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace";
+      t.style.fontSize="12px";
+      t.style.color="rgba(244,223,154,.95)";
+      t.style.background="rgba(0,0,0,.65)";
+      t.style.border="1px solid rgba(215,179,90,.25)";
+      t.style.boxShadow="0 14px 40px rgba(0,0,0,.55)";
+      t.style.zIndex="9999";
+      t.style.backdropFilter="blur(6px)";
+      document.body.appendChild(t);
+      setTimeout(()=>{ t.style.opacity="0"; t.style.transition="opacity .25s ease"; }, 900);
+      setTimeout(()=>{ t.remove(); }, 1250);
+    }
+  </script>
+</body>
+</html>
